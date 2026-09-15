@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Waschmittelrechner · parametrisierte DIY-Rezeptur</title>
+  <!-- Mermaid für Diagramme -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+    });
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f7fa;
+      color: #1e2b3c;
+      line-height: 1.5;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    body.dark-mode {
+      background: #12181c;
+      color: #d6e3ed;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: #0a1e2c;
+      border-left: 4px solid #d97706;
+      padding-left: 1rem;
+    }
+    body.dark-mode h1 {
+      color: #e5edf5;
+      border-left-color: #f39c12;
+    }
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 1.5rem 0 1rem;
+      color: #1e3a5f;
+    }
+    body.dark-mode h2 {
+      color: #bdd1e6;
+    }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1rem 0 0.5rem;
+      color: #2c4c6e;
+    }
+    body.dark-mode h3 {
+      color: #a7c0db;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #e9edf2;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    body.dark-mode .card {
+      background: #1e2a32;
+      border-color: #2e3c47;
+    }
+    .param-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem 1.5rem;
+      margin: 1rem 0;
+    }
+    .param-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .param-item label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: #2c4c6e;
+    }
+    body.dark-mode .param-item label {
+      color: #b0c7de;
+    }
+    .param-item select, .param-item input {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #cfdde9;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: white;
+      transition: border 0.15s, background-color 0.2s, color 0.2s;
+    }
+    body.dark-mode .param-item select,
+    body.dark-mode .param-item input {
+      background: #26333d;
+      border-color: #3e505e;
+      color: #e0ecf5;
+    }
+    .param-item select:focus, .param-item input:focus {
+      border-color: #d97706;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(217,119,6,0.1);
+    }
+    .inline-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .btn {
+      background: #eef2f6;
+      border: 1px solid #ccdae5;
+      border-radius: 30px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1e3a5f;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    body.dark-mode .btn {
+      background: #2c3d4b;
+      border-color: #3f5465;
+      color: #d6e3ed;
+    }
+    .btn:hover {
+      background: #d9e2ec;
+    }
+    body.dark-mode .btn:hover {
+      background: #3d5365;
+    }
+    .btn-primary {
+      background: #d97706;
+      color: white;
+      border-color: #b05e04;
+    }
+    body.dark-mode .btn-primary {
+      background: #e6891e;
+      border-color: #c56f0a;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #b85e04;
+    }
+    body.dark-mode .btn-primary:hover {
+      background: #c56f0a;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+    }
+    th {
+      text-align: left;
+      padding: 0.7rem 0.3rem 0.3rem 0;
+      font-weight: 700;
+      color: #1e3a5f;
+      border-bottom: 2px solid #d0dce8;
+    }
+    body.dark-mode th {
+      color: #bdd1e6;
+      border-bottom-color: #3f5465;
+    }
+    td {
+      padding: 0.5rem 0.3rem;
+      border-bottom: 1px solid #e2e9f0;
+    }
+    body.dark-mode td {
+      border-bottom-color: #344654;
+    }
+    .amount {
+      font-weight: 700;
+    }
+    .tooltip-icon {
+      display: inline-block;
+      margin-left: 0.3rem;
+      color: #5e6f7e;
+      font-size: 0.8rem;
+      cursor: help;
+      border-bottom: 1px dotted #5e6f7e;
+      position: relative;
+    }
+    body.dark-mode .tooltip-icon {
+      color: #a0b8cd;
+      border-bottom-color: #a0b8cd;
+    }
+    .glossar {
+      background: #fafcff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border: 1px solid #e1eaf1;
+      font-size: 0.9rem;
+    }
+    body.dark-mode .glossar {
+      background: #1b262e;
+      border-color: #304251;
+    }
+    .mermaid-container {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #e9edf2;
+      overflow-x: auto;
+      display: none; /* standardmäßig versteckt */
+    }
+    body.dark-mode .mermaid-container {
+      background: #1e2a32;
+      border-color: #2e3c47;
+    }
+    .output-extra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin: 1rem 0;
+      background: #f0f4f9;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+    }
+    body.dark-mode .output-extra {
+      background: #1e2a32;
+    }
+    /* Benutzerdefinierter Tooltip */
+    .custom-tooltip {
+      position: fixed;
+      background: #1e2b3c;
+      color: #f0f6fc;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      max-width: 250px;
+      z-index: 1000;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border: 1px solid #3e5a70;
+      transition: opacity 0.15s;
+      opacity: 0;
+    }
+    body.dark-mode .custom-tooltip {
+      background: #2d404f;
+      color: #e9f2fa;
+      border-color: #5a7a94;
+    }
+    .custom-tooltip.visible {
+      opacity: 1;
+    }
+    .button-bar {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .warning-box {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      color: #856404;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+    body.dark-mode .warning-box {
+      background: #3d3218;
+      border-color: #5c4d25;
+      color: #f5e6a6;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Waschmittelrechner · parametrisierte DIY-Rezeptur</h1>
+    <button class="btn" id="darkModeToggle" style="margin-left: auto;">🌙 Dunkelmodus</button>
+  </div>
+  <p style="margin-bottom:1.5rem; color:#4a5a6a;">Berechnung von Waschmittelkomponenten für unterschiedliche Verschmutzungen und Waschbedingungen.</p>
+
+  <!-- Eingabekarte -->
+  <div class="card">
+    <h2 style="margin-top:0;">Parameter</h2>
+    <div class="param-grid">
+      <!-- Waschladung -->
+      <div class="param-item">
+        <label>Waschladung (kg) <span class="tooltip-icon" data-tooltip="Trockengewicht der Textilien.">ⓘ</span></label>
+        <div class="inline-group">
+          <input type="number" id="loadKg" value="5" min="1" max="15" step="0.5" style="width:100px;">
+          <span>kg</span>
+        </div>
+      </div>
+
+      <!-- Fleckenart (Mehrfachauswahl als Checkboxen) -->
+      <div class="param-item">
+        <label>Fleckenarten (Mehrfachauswahl) <span class="tooltip-icon" data-tooltip="Gewichtung erfolgt gleichmäßig.">ⓘ</span></label>
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.3rem;">
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_oil" checked> Motor-/Getriebeöl</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_diesel"> Diesel</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_blood"> Blut</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_wine"> Wein</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_grass"> Gras</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_coffee"> Kaffee/Tee</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_rust"> Rost</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_ink"> Tinte</label>
+          <label style="font-weight:normal;"><input type="checkbox" id="stain_ballpen"> Kugelschreiber</label>
+        </div>
+      </div>
+
+      <!-- Fleckenalter -->
+      <div class="param-item">
+        <label>Fleckenalter <span class="tooltip-icon" data-tooltip="Beeinflusst Oxidationsgrad und Polymerisation.">ⓘ</span></label>
+        <select id="age">
+          <option value="frisch">frisch (&lt; 1 Woche)</option>
+          <option value="eingetrocknet" selected>eingetrocknet (&gt; 1 Monat)</option>
+          <option value="eingebrannt">eingebrannt (Hitzeeinwirkung)</option>
+        </select>
+      </div>
+
+      <!-- Textilart -->
+      <div class="param-item">
+        <label>Textilart <span class="tooltip-icon" data-tooltip="Beeinflusst Alkalitoleranz und Oleophilie.">ⓘ</span></label>
+        <select id="fabric">
+          <option value="baumwolle" selected>Baumwolle</option>
+          <option value="mischgewebe">Mischgewebe (65/35)</option>
+          <option value="synthetik">Synthetik (Polyester)</option>
+        </select>
+      </div>
+
+      <!-- Waschtemperatur -->
+      <div class="param-item">
+        <label>Temperatur <span class="tooltip-icon" data-tooltip="Arrhenius-Effekt auf Reaktionskinetik.">ⓘ</span></label>
+        <select id="temp">
+          <option value="30">30 °C</option>
+          <option value="40">40 °C</option>
+          <option value="60" selected>60 °C</option>
+          <option value="90">90 °C</option>
+        </select>
+      </div>
+
+      <!-- Einweichdauer -->
+      <div class="param-item">
+        <label>Einweichdauer <span class="tooltip-icon" data-tooltip="Vor der Hauptwäsche.">ⓘ</span></label>
+        <select id="soak">
+          <option value="0" selected>keine</option>
+          <option value="2">2 Stunden</option>
+          <option value="8">8 Stunden (über Nacht)</option>
+        </select>
+      </div>
+
+      <!-- Waschdauer -->
+      <div class="param-item">
+        <label>Waschdauer <span class="tooltip-icon" data-tooltip="Hauptwaschgang.">ⓘ</span></label>
+        <select id="washTime">
+          <option value="60">60 min</option>
+          <option value="120" selected>120 min</option>
+          <option value="180">180 min</option>
+        </select>
+      </div>
+
+      <!-- Wasserhärte -->
+      <div class="param-item">
+        <label>Wasserhärte <span class="tooltip-icon" data-tooltip="Beeinflusst Citrat- und Sodadosierung.">ⓘ</span></label>
+        <select id="waterHardness">
+          <option value="weich">weich (&lt; 8 °dH)</option>
+          <option value="mittel" selected>mittel (8–14 °dH)</option>
+          <option value="hart">hart (&gt; 14 °dH)</option>
+        </select>
+      </div>
+
+      <!-- Maschinentyp -->
+      <div class="param-item">
+        <label>Maschinentyp <span class="tooltip-icon" data-tooltip="Wassermenge und Mechanik.">ⓘ</span></label>
+        <select id="machine">
+          <option value="frontlader" selected>Frontlader</option>
+          <option value="toplader">Toplader</option>
+        </select>
+      </div>
+
+      <!-- Vorbehandlung -->
+      <div class="param-item">
+        <label>Vorbehandlung <span class="tooltip-icon" data-tooltip="Reduziert benötigte Chemie im Hauptwaschgang.">ⓘ</span></label>
+        <select id="pretreat">
+          <option value="none" selected>keine</option>
+          <option value="soak">Einweichen mit Tensid</option>
+          <option value="brush">Bürsten mit Gallseife</option>
+        </select>
+      </div>
+
+      <!-- Ölviskosität (falls Öl ausgewählt) -->
+      <div class="param-item" id="oilViscosityGroup">
+        <label>Ölviskosität (für Ölflecken) <span class="tooltip-icon" data-tooltip="Beeinflusst Tensidbedarf.">ⓘ</span></label>
+        <select id="oilViscosity">
+          <option value="diesel">Diesel (niedrig)</option>
+          <option value="motor" selected>Motoröl (mittel)</option>
+          <option value="getriebe">Getriebeöl (hoch)</option>
+        </select>
+      </div>
+
+      <!-- Chargengröße für Vorratsmischung -->
+      <div class="param-item">
+        <label>Vorratsmischung (kg Pulver) <span class="tooltip-icon" data-tooltip="0 = nur pro Waschladung.">ⓘ</span></label>
+        <input type="number" id="batchSize" value="0" min="0" max="10" step="0.5" style="width:100px;">
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-bar">
+      <button class="btn btn-primary" id="calculateBtn">Berechnen</button>
+      <button class="btn" id="resetBtn">Standardwerte</button>
+      <button class="btn" id="toggleDiagramsBtn">Diagramme einblenden</button>
+    </div>
+  </div>
+
+  <!-- Mermaid Diagramme -->
+  <div class="mermaid-container" id="diagramContainer1">
+    <h3>Entscheidungslogik (vereinfacht)</h3>
+    <pre class="mermaid" style="text-align:center;">
+      graph TD
+        A[Parameter] --> B{Fleckenart};
+        B -->|Öl/Fett| C[Öl-Modul];
+        B -->|Protein| D[Protein-Modul];
+        B -->|Oxidativ| E[Bleich-Modul];
+        B -->|Metallorganisch| F[Säure-Modul];
+        C --> G[Faktoren Soda, FAEO, TAED];
+        D --> H[+Protease, pH-Anpassung];
+        E --> I[+TAED/Percarbonat];
+        F --> J[+Zitronensäure, weniger Soda];
+        G & H & I & J --> K[Einfluss Temperatur, Textil, Alter, Wasserhärte, Maschine];
+        K --> L[Mengenberechnung];
+    </pre>
+  </div>
+
+  <div class="mermaid-container" id="diagramContainer2">
+    <h3>Chemische Abhängigkeiten</h3>
+    <pre class="mermaid" style="text-align:center;">
+      graph LR
+        subgraph Flecken
+          F1[Triglyceride] --> C1
+          F2[Proteine] --> C4
+          F3[Farbstoffe] --> C3
+          F4[Eisenoxide] --> C5
+        end
+        subgraph Komponenten
+          C1[Soda] -->|Verseifung| F1
+          C2[FAEO] -->|Emulgierung| F1
+          C3[TAED+Percarbonat] -->|Oxidation| F3
+          C4[Protease] -->|Hydrolyse| F2
+          C5[Zitronensäure] -->|Komplexierung| F4
+        end
+    </pre>
+  </div>
+
+  <!-- Ausgabebereich (wird per JS befüllt) -->
+  <div class="card" id="outputCard">
+    <h2 style="margin-top:0;">Rezeptur</h2>
+    <div id="recipeOutput"></div>
+    <div id="safetyWarnings"></div>
+  </div>
+
+  <!-- Zusätzliche Hinweise -->
+  <div class="output-extra" id="extraInfo"></div>
+
+  <!-- Glossar / Quellen -->
+  <div class="glossar">
+    <h3>Grundlagen & Quellen</h3>
+    <p><strong>Faktoren:</strong> Basieren auf chemischer Kinetik (Arrhenius), Mizellbildung, enzymatischer Aktivität und Waschmittelformulierungsliteratur (Handbook of Detergents, Tenside Surfactants Detergents, Römpp).</p>
+    <p><strong>Bezugsquellen:</strong> Soda (Drogerie), Percarbonat (Fleckensalz, Purux), FAEO (Manske, Dragonspice), TAED (Waschkram), Protease (Spinnrad), Zitronensäure (Lebensmittelhandel).</p>
+    <p><strong>Sicherheitsdaten:</strong> Siehe Tooltips an Komponenten. GHS-Einstufungen: Soda (H319), Percarbonat (H272, H318), FAEO (H315, H319, H412), TAED (H319, H335), Protease (H315, H319, H334).</p>
+    <p><strong>Umwelthinweis:</strong> FAEO und andere Tenside sind gewässergefährdend. Dosieren Sie strikt nach Bedarf. Entsorgen Sie Reste nicht über den Hausmüll oder das Abwasser, wenn möglich in einer Sammelstelle für Chemikalien abgeben.</p>
+  </div>
+</div>
+
+<!-- Benutzerdefinierter Tooltip -->
+<div class="custom-tooltip" id="customTooltip"></div>
+
+<script>
+  (function() {
+    "use strict";
+
+    // ---------- Basisdaten ----------
+    const BASE = {
+      soda: 80,
+      faeo: 25,
+      taed: 15,
+      percarbonat: 40,
+      citrate: 25,
+      cellulose: 3,
+      protease: 0,
+      citricAcid: 0
+    };
+
+    // ---------- Faktoren ----------
+    const stainFactors = {
+      oil:      { soda: 1.0, faeo: 1.0, taed: 1.0, perc: 1.0, protease: 0, citric: 0 },
+      diesel:   { soda: 0.8, faeo: 0.8, taed: 1.0, perc: 1.0, protease: 0, citric: 0 },
+      blood:    { soda: 0.6, faeo: 0.8, taed: 1.2, perc: 1.5, protease: 5, citric: 10 },
+      wine:     { soda: 1.0, faeo: 0.8, taed: 1.5, perc: 2.0, protease: 0, citric: 0 },
+      grass:    { soda: 0.8, faeo: 0.9, taed: 1.3, perc: 1.5, protease: 5, citric: 0 },
+      coffee:   { soda: 1.0, faeo: 0.8, taed: 1.4, perc: 1.8, protease: 0, citric: 0 },
+      rust:     { soda: 0.3, faeo: 0.5, taed: 0.5, perc: 0.5, protease: 0, citric: 30 },
+      ink:      { soda: 0.5, faeo: 1.0, taed: 1.0, perc: 1.0, protease: 0, citric: 20 },
+      ballpen:  { soda: 0.8, faeo: 1.5, taed: 1.2, perc: 1.2, protease: 0, citric: 0 }
+    };
+
+    const ageFactors = {
+      frisch:         { soda: 0.7, faeo: 0.8, taed: 0.5, perc: 0.5 },
+      eingetrocknet:  { soda: 1.0, faeo: 1.0, taed: 1.0, perc: 1.0 },
+      eingebrannt:    { soda: 1.2, faeo: 1.5, taed: 1.3, perc: 1.3 }
+    };
+
+    const fabricFactors = {
+      baumwolle:   { soda: 1.0, faeo: 1.0 },
+      mischgewebe: { soda: 0.7, faeo: 1.3 },
+      synthetik:   { soda: 0.4, faeo: 1.6 }
+    };
+
+    const tempFactors = {
+      30: { soda: 4.0, faeo: 1.4, taed: 10.0, perc: 1.0 },
+      40: { soda: 2.0, faeo: 1.2, taed: 3.3,  perc: 1.0 },
+      60: { soda: 1.0, faeo: 1.0, taed: 1.0,  perc: 1.0 },
+      90: { soda: 0.4, faeo: 0.9, taed: 0.45, perc: 1.0 }
+    };
+
+    const soakFactors = {
+      0: { soda: 1.0, faeo: 1.0 },
+      2: { soda: 0.7, faeo: 0.9 },
+      8: { soda: 0.5, faeo: 0.8 }
+    };
+
+    const washTimeFactors = {
+      60:  { taed: 2.0 },
+      120: { taed: 1.0 },
+      180: { taed: 0.7 }
+    };
+
+    const waterHardnessFactors = {
+      weich:  { citrate: 0.8, soda: 1.0 },
+      mittel: { citrate: 1.0, soda: 1.0 },
+      hart:   { citrate: 1.5, soda: 0.9 }
+    };
+
+    const machineFactors = {
+      frontlader: 1.0,
+      toplader:   1.4
+    };
+
+    const pretreatFactors = {
+      none:  1.0,
+      soak:  0.7,
+      brush: 0.5
+    };
+
+    // ---------- DOM-Elemente ----------
+    const loadInput = document.getElementById('loadKg');
+    const checkOil = document.getElementById('stain_oil');
+    const checkDiesel = document.getElementById('stain_diesel');
+    const checkBlood = document.getElementById('stain_blood');
+    const checkWine = document.getElementById('stain_wine');
+    const checkGrass = document.getElementById('stain_grass');
+    const checkCoffee = document.getElementById('stain_coffee');
+    const checkRust = document.getElementById('stain_rust');
+    const checkInk = document.getElementById('stain_ink');
+    const checkBallpen = document.getElementById('stain_ballpen');
+    const ageSelect = document.getElementById('age');
+    const fabricSelect = document.getElementById('fabric');
+    const tempSelect = document.getElementById('temp');
+    const soakSelect = document.getElementById('soak');
+    const washTimeSelect = document.getElementById('washTime');
+    const waterHardnessSelect = document.getElementById('waterHardness');
+    const machineSelect = document.getElementById('machine');
+    const pretreatSelect = document.getElementById('pretreat');
+    const oilViscositySelect = document.getElementById('oilViscosity');
+    const batchSizeInput = document.getElementById('batchSize');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const recipeOutput = document.getElementById('recipeOutput');
+    const safetyWarnings = document.getElementById('safetyWarnings');
+    const extraInfo = document.getElementById('extraInfo');
+    const toggleDiagramsBtn = document.getElementById('toggleDiagramsBtn');
+    const diagramContainers = [document.getElementById('diagramContainer1'), document.getElementById('diagramContainer2')];
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const customTooltip = document.getElementById('customTooltip');
+
+    const ghsTooltips = {
+      'Waschsoda': 'GHS07 · H319 (Augenreizung) · P305+P351+P338',
+      'FAEO': 'GHS07, GHS09 · H315, H319, H412 (Gewässergefährdend!) · P273, P302+P352. Nur dosiert einsetzen.',
+      'TAED': 'GHS07 · H319, H335 · P261, P305+P351+P338',
+      'Natriumpercarbonat': 'GHS03, GHS07 · H272, H318 · P210, P280, P305+P351+P338',
+      'Natriumcitrat': 'Keine Einstufung',
+      'Celluloseether': 'Keine Einstufung',
+      'Protease': 'GHS07, GHS08 · H315, H319, H334 (Atemwegsensibilisierend!) · P261, P284, P304+P340. STAUB NICHT EINATMEN!',
+      'Zitronensäure': 'GHS07 · H319 · P305+P351+P338'
+    };
+
+    // ---------- Tooltip-Logik ----------
+    function showTooltip(event) {
+      const el = event.currentTarget;
+      const text = el.getAttribute('data-tooltip');
+      if (!text) return;
+      customTooltip.textContent = text;
+      customTooltip.classList.add('visible');
+    }
+
+    function moveTooltip(event) {
+      const x = event.clientX + 15;
+      const y = event.clientY + 10;
+      customTooltip.style.left = x + 'px';
+      customTooltip.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+      customTooltip.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-icon').forEach(icon => {
+      icon.addEventListener('mouseenter', showTooltip);
+      icon.addEventListener('mousemove', moveTooltip);
+      icon.addEventListener('mouseleave', hideTooltip);
+    });
+
+    // ---------- Diagramme ein-/ausblenden ----------
+    let diagramsVisible = false;
+    toggleDiagramsBtn.addEventListener('click', () => {
+      diagramsVisible = !diagramsVisible;
+      diagramContainers.forEach(c => c.style.display = diagramsVisible ? 'block' : 'none');
+      toggleDiagramsBtn.textContent = diagramsVisible ? 'Diagramme ausblenden' : 'Diagramme einblenden';
+    });
+
+    // ---------- Dunkelmodus ----------
+    let darkMode = false;
+    darkModeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      document.body.classList.toggle('dark-mode', darkMode);
+      darkModeToggle.textContent = darkMode ? '☀️ Hellmodus' : '🌙 Dunkelmodus';
+    });
+
+    // ---------- Hilfsfunktionen ----------
+    function getSelectedStains() {
+      const stains = [];
+      if (checkOil.checked) stains.push('oil');
+      if (checkDiesel.checked) stains.push('diesel');
+      if (checkBlood.checked) stains.push('blood');
+      if (checkWine.checked) stains.push('wine');
+      if (checkGrass.checked) stains.push('grass');
+      if (checkCoffee.checked) stains.push('coffee');
+      if (checkRust.checked) stains.push('rust');
+      if (checkInk.checked) stains.push('ink');
+      if (checkBallpen.checked) stains.push('ballpen');
+      return stains.length ? stains : ['oil'];
+    }
+
+    function getStainAverages(stains) {
+      let soda = 0, faeo = 0, taed = 0, perc = 0, protease = 0, citric = 0;
+      const n = stains.length;
+      stains.forEach(s => {
+        const f = stainFactors[s];
+        soda += f.soda;
+        faeo += f.faeo;
+        taed += f.taed;
+        perc += f.perc;
+        protease += f.protease;
+        citric += f.citric;
+      });
+      return { soda: soda/n, faeo: faeo/n, taed: taed/n, perc: perc/n, protease: protease/n, citric: citric/n };
+    }
+
+    function calculate() {
+      const load = parseFloat(loadInput.value) || 5;
+      const stains = getSelectedStains();
+      const age = ageSelect.value;
+      const fabric = fabricSelect.value;
+      const temp = tempSelect.value;
+      const soak = soakSelect.value;
+      const washTime = washTimeSelect.value;
+      const waterHardness = waterHardnessSelect.value;
+      const machine = machineSelect.value;
+      const pretreat = pretreatSelect.value;
+      const oilViscosity = oilViscositySelect.value;
+      const batchSize = parseFloat(batchSizeInput.value) || 0;
+
+      const avgStain = getStainAverages(stains);
+
+      let soda = BASE.soda * avgStain.soda;
+      let faeo = BASE.faeo * avgStain.faeo;
+      let taed = BASE.taed * avgStain.taed;
+      let perc = BASE.percarbonat * avgStain.perc;
+      let citrate = BASE.citrate;
+      let cellulose = BASE.cellulose;
+      let protease = avgStain.protease;
+      let citricAcid = avgStain.citric;
+
+      if (stains.includes('oil') || stains.includes('diesel')) {
+        if (oilViscosity === 'diesel') faeo *= 0.8;
+        else if (oilViscosity === 'getriebe') faeo *= 1.2;
+      }
+
+      const ageF = ageFactors[age];
+      soda *= ageF.soda; faeo *= ageF.faeo; taed *= ageF.taed; perc *= ageF.perc;
+
+      const fabricF = fabricFactors[fabric];
+      soda *= fabricF.soda; faeo *= fabricF.faeo;
+
+      const tempF = tempFactors[temp];
+      soda *= tempF.soda; faeo *= tempF.faeo; taed *= tempF.taed;
+
+      const soakF = soakFactors[soak];
+      soda *= soakF.soda; faeo *= soakF.faeo;
+
+      taed *= washTimeFactors[washTime].taed;
+      perc = 2.5 * taed;
+
+      const waterF = waterHardnessFactors[waterHardness];
+      citrate *= waterF.citrate; soda *= waterF.soda;
+
+      const machineMul = machineFactors[machine];
+      const pretreatMul = pretreatFactors[pretreat];
+
+      const globalMul = machineMul * pretreatMul * (load / 5.0);
+      soda *= globalMul; faeo *= globalMul; taed *= globalMul; perc *= globalMul;
+      citrate *= globalMul; cellulose *= globalMul; protease *= globalMul; citricAcid *= globalMul;
+
+      soda = Math.round(soda * 10) / 10;
+      faeo = Math.round(faeo * 10) / 10;
+      taed = Math.round(taed * 10) / 10;
+      perc = Math.round(perc * 10) / 10;
+      citrate = Math.round(citrate * 10) / 10;
+      cellulose = Math.round(cellulose * 10) / 10;
+      protease = Math.round(protease * 10) / 10;
+      citricAcid = Math.round(citricAcid * 10) / 10;
+
+      let html = `<table><thead><tr><th>Komponente</th><th>Menge pro ${load} kg Wäsche</th><th>Funktion</th></tr></thead><tbody>`;
+
+      const addRow = (name, amount, unit, func) => {
+        if (amount <= 0 && !name.includes('(optional)')) return;
+        const tooltip = ghsTooltips[name] || '';
+        const tooltipSpan = tooltip ? `<span class="tooltip-icon" data-tooltip="${tooltip}">ⓘ</span>` : '';
+        html += `<tr><td>${name} ${tooltipSpan}</td><td class="amount">${amount} ${unit}</td><td>${func}</td></tr>`;
+      };
+
+      addRow('Waschsoda', soda, 'g', 'Verseifung, pH-Wert');
+      addRow('FAEO (nichtion. Tensid)', faeo, 'g', 'Emulgierung Öl/Fett');
+      addRow('TAED', taed, 'g', 'Bleichaktivator');
+      addRow('Natriumpercarbonat', perc, 'g', 'Sauerstoffbleiche');
+      addRow('Natriumcitrat', citrate, 'g', 'Enthärter');
+      addRow('Celluloseether', cellulose, 'g', 'Anti-Redeposition');
+      if (protease > 0) addRow('Protease', protease, 'g', 'Proteinabbau (Blut, Gras)');
+      if (citricAcid > 0) addRow('Zitronensäure', citricAcid, 'g', 'Rost-/Tintenentfernung');
+
+      html += `</tbody></table>`;
+
+      // Sicherheitswarnungen generieren
+      let warningsHtml = '';
+      if (protease > 0) {
+        warningsHtml += `<div class="warning-box">⚠️ <strong>Atemschutz empfohlen:</strong> Bei der Handhabung von Protease-Staub unbedingt partikelfiltrierende Maske (FFP2) tragen. Einatmen vermeiden (H334).</div>`;
+      }
+      if (soda > 150) {
+        warningsHtml += `<div class="warning-box">⚠️ <strong>Hohe Alkalität:</strong> Die berechnete Sodamenge ist hoch. Tragen Sie Schutzhandschuhe und vermeiden Sie Augenkontakt.</div>`;
+      }
+      if (stains.includes('oil') || stains.includes('diesel') || stains.includes('ballpen')) {
+        warningsHtml += `<div class="warning-box">⚠️ <strong>Trockner-Warnung:</strong> Mit Öl verschmutzte Textilien nicht im Wäschetrockner trocknen (Selbstentzündungsgefahr bei Ölrückständen).</div>`;
+      }
+      
+      safetyWarnings.innerHTML = warningsHtml;
+
+      if (batchSize > 0) {
+        const scale = batchSize / load;
+        const batchSoda = Math.round(soda * scale * 10) / 10;
+        const batchFaeo = Math.round(faeo * scale * 10) / 10;
+        const batchTaed = Math.round(taed * scale * 10) / 10;
+        const batchPerc = Math.round(perc * scale * 10) / 10;
+        const batchCitrate = Math.round(citrate * scale * 10) / 10;
+        const batchCellulose = Math.round(cellulose * scale * 10) / 10;
+        const batchProtease = Math.round(protease * scale * 10) / 10;
+        const batchCitric = Math.round(citricAcid * scale * 10) / 10;
+        html += `<p style="margin-top:1rem;"><strong>Vorratsmischung (${batchSize} kg Pulver):</strong><br>`;
+        html += `Waschsoda: ${batchSoda} g, FAEO: ${batchFaeo} g, TAED: ${batchTaed} g, Percarbonat: ${batchPerc} g, Citrat: ${batchCitrate} g, Cellulose: ${batchCellulose} g`;
+        if (protease > 0) html += `, Protease: ${batchProtease} g`;
+        if (citricAcid > 0) html += `, Zitronensäure: ${batchCitric} g`;
+        html += `.<br>Dosierung pro ${load} kg Wäsche: ca. ${Math.round((load / batchSize) * 1000)} g Pulver.</p>`;
+      }
+
+      recipeOutput.innerHTML = html;
+      document.querySelectorAll('#recipeOutput .tooltip-icon').forEach(icon => {
+        icon.addEventListener('mouseenter', showTooltip);
+        icon.addEventListener('mousemove', moveTooltip);
+        icon.addEventListener('mouseleave', hideTooltip);
+      });
+
+      const waterVolume = machine === 'frontlader' ? 45 : 80;
+      const phEst = (14 + Math.log10(soda / (waterVolume * 10) / 105.99 * 2)).toFixed(1);
+      const spinSpeed = fabric === 'baumwolle' ? '1400' : (fabric === 'mischgewebe' ? '1200' : '800');
+
+      extraInfo.innerHTML = `
+        <div><strong>pH-Wert (geschätzt):</strong> ${phEst}</div>
+        <div><strong>Wasserverbrauch (ca.):</strong> ${waterVolume} L</div>
+        <div><strong>Empfohlene Schleuderdrehzahl:</strong> max. ${spinSpeed} U/min</div>
+      `;
+    }
+
+    calculateBtn.addEventListener('click', calculate);
+    resetBtn.addEventListener('click', () => {
+      loadInput.value = 5;
+      checkOil.checked = true;
+      checkDiesel.checked = false;
+      checkBlood.checked = false;
+      checkWine.checked = false;
+      checkGrass.checked = false;
+      checkCoffee.checked = false;
+      checkRust.checked = false;
+      checkInk.checked = false;
+      checkBallpen.checked = false;
+      ageSelect.value = 'eingetrocknet';
+      fabricSelect.value = 'baumwolle';
+      tempSelect.value = '60';
+      soakSelect.value = '0';
+      washTimeSelect.value = '120';
+      waterHardnessSelect.value = 'mittel';
+      machineSelect.value = 'frontlader';
+      pretreatSelect.value = 'none';
+      oilViscositySelect.value = 'motor';
+      batchSizeInput.value = 0;
+      calculate();
+    });
+
+    function toggleOilViscosity() {
+      const hasOil = checkOil.checked || checkDiesel.checked;
+      document.getElementById('oilViscosityGroup').style.display = hasOil ? 'block' : 'none';
+    }
+    checkOil.addEventListener('change', toggleOilViscosity);
+    checkDiesel.addEventListener('change', toggleOilViscosity);
+    toggleOilViscosity();
+
+    calculate();
+  })();
+</script>
+</body>
+</html>
