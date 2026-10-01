@@ -1,0 +1,5 @@
+# APEX-Schnittstelle (Arbeitsdaten, nicht versionieren)
+.apex-schnittstelle/auftraege/
+.apex-schnittstelle/arbeit/
+.apex-schnittstelle/berichte/
+.apex-schnittstelle/sperren/

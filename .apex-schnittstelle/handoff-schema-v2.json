@@ -1,0 +1,378 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://apex-c2.example.org/schemas/handoff-v2.json",
+  "title": "APEX C2/M2a3 Uebergabevertrag v2",
+  "description": "Vollstaendiges Schema. Fuenf Validierungseinstiege: handoff.json -> dieses Dokument; status.json -> definitions.status; bestaetigung.json -> definitions.bestaetigung; bestaetigung-ref.json -> definitions.bestaetigung_referenz; kontext.json -> definitions.kontext. ABGRENZUNG v1: v1 fuehrte 'status' im Hauptobjekt und kannte pfad_basis, abschluss, anlagen_hash, anlagen_erfassung, absender, empfaenger, auftrag_meta, auftrag_kontext nicht. v2 ist ein neuer Vertrag, keine v1-kompatible Erweiterung.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "handoff_id",
+    "auftrag_kennung",
+    "projekt_id",
+    "profil",
+    "erstellt",
+    "pfad_basis",
+    "report_hash",
+    "abschluss",
+    "anlagen",
+    "anlagen_hash",
+    "anlagen_erfassung",
+    "absender",
+    "empfaenger",
+    "auftrag_meta",
+    "auftrag_kontext"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+    },
+    "auftrag_kennung": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+    },
+    "auftrag_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+    },
+    "projekt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profil": {
+      "type": "string",
+      "enum": [
+        "lieferung",
+        "test",
+        "validierung"
+      ]
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "turn_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "erstellt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pfad_basis": {
+      "type": "string",
+      "const": "paket"
+    },
+    "report_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+    },
+    "anlagen_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+    },
+    "anlagen_erfassung": {
+      "type": "string",
+      "const": "alle Dateien im Arbeitsordner einschliesslich versteckter und System-Dateien, ausgenommen der uebernommene Abschlussbericht"
+    },
+    "auftrag_kontext": {
+      "type": "string",
+      "enum": [
+        "vorhanden",
+        "nicht vorhanden"
+      ]
+    },
+    "abschluss": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "rel_pfad",
+        "groesse",
+        "uebernommen_aus"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string",
+          "const": "paket"
+        },
+        "rel_pfad": {
+          "type": "string",
+          "pattern": "^bericht/(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .](?:/(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .])*(?![\\s\\S])"
+        },
+        "groesse": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "uebernommen_aus": {
+          "type": "string",
+          "pattern": "^(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .](?:/(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .])*(?![\\s\\S])"
+        }
+      }
+    },
+    "anlagen": {
+      "type": "array",
+      "description": "Leere Liste zulaessig.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "RelPfad",
+          "SHA256",
+          "Groesse"
+        ],
+        "properties": {
+          "RelPfad": {
+            "type": "string",
+            "pattern": "^anlagen/(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .](?:/(?![.]{1,2}(?:/|$))(?!(?:[Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9\\u00b9\\u00b2\\u00b3]|[Ll][Pp][Tt][1-9\\u00b9\\u00b2\\u00b3])(?:\\.|/|$))[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029]*[^\\x00-\\x1f\\\\/:*?\"<>|\\uFEFF\\u2028\\u2029 .])*(?![\\s\\S])"
+          },
+          "SHA256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+          },
+          "Groesse": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "absender": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kontext_id"
+      ],
+      "properties": {
+        "kontext_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "empfaenger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kanal",
+        "unterhaltung_id"
+      ],
+      "properties": {
+        "kanal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unterhaltung_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "auftrag_meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "rel_pfad",
+        "sha256"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string",
+          "const": "auftrag"
+        },
+        "rel_pfad": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "status": {
+      "title": "status.json",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "handoff_id",
+        "status",
+        "geaendert"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "handoff_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "vorbereitet",
+            "gespeichert_verifiziert",
+            "lokal_bereitgestellt",
+            "empfangen_bestaetigt"
+          ]
+        },
+        "geaendert": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "bestaetigung": {
+      "title": "bestaetigung.json",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "handoff_id",
+        "bestaetigt_am",
+        "pruefer_kanal",
+        "pruefer_unterhaltung",
+        "report_hash",
+        "anlagen_hash",
+        "signatur"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "handoff_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+        },
+        "bestaetigt_am": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "pruefer_kanal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pruefer_unterhaltung": {
+          "type": "string",
+          "minLength": 1
+        },
+        "report_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "anlagen_hash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        },
+        "signatur": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Die Pruefung dieser Signatur ist NICHT implementiert. Solange sie fehlt, darf kein Status 'empfangen_bestaetigt' entstehen oder anerkannt werden."
+        }
+      }
+    },
+    "bestaetigung_referenz": {
+      "title": "bestaetigung-ref.json",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "handoff_id",
+        "bestaetigung_sha256"
+      ],
+      "properties": {
+        "handoff_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+        },
+        "bestaetigung_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}(?![\\s\\S])"
+        }
+      }
+    },
+    "kontext": {
+      "title": "kontext.json",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "auftrag_kennung",
+        "projekt_id",
+        "profil",
+        "empfaenger",
+        "erstellt"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "integer",
+          "const": 1
+        },
+        "auftrag_kennung": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}(?![\\s\\S])"
+        },
+        "projekt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profil": {
+          "type": "string",
+          "enum": [
+            "lieferung",
+            "test",
+            "validierung"
+          ]
+        },
+        "empfaenger": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kanal",
+            "unterhaltung_id"
+          ],
+          "properties": {
+            "kanal": {
+              "type": "string",
+              "minLength": 1
+            },
+            "unterhaltung_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "session_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "turn_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "erstellt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
